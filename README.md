@@ -19,7 +19,7 @@ Vuelve a exportar cada vez que cambies algo.
 
 1. Recorta cada código del manual (Win+Shift+S), haz clic en su tarjeta y pega con Ctrl+V. Deja margen blanco alrededor.
 2. Ordena: ↑ ↓, arrastrar desde ⠿, o ⇄ para intercambiar dos tarjetas. Edita nombre y comando escribiendo encima.
-3. El punto de color cambia el tipo de paso: normal, alarma (se salta en estaciones Windows) o fuera del flujo.
+3. El punto de color cambia el tipo de paso: normal o alarma. Se reproduce todo en el orden del editor; el toggle **Estación con Windows** quita solo los pasos de alarma.
 4. **Reproducir**: Espacio / → / clic avanza, ← vuelve, + − cambia el tamaño (en saltos enteros, para que las barras no se deformen), R repite, Esc sale.
    Enter no avanza a propósito, por si un escáner con auto-enter está vinculado a ese portátil.
 

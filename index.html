@@ -191,9 +191,7 @@
       ['Bajo alcance', 'BT_TXP1.', 'normal'],
       ['Base solo carga', 'BASLNK0.', 'normal'],
       ['Bloquear vínculo', 'BASCON0,DNG1.', 'normal'],
-      ['Reescanear código de la base', '', 'normal'],
-      ['Deshacer solo carga (referencia)', 'BASLNK1.', 'off'],
-      ['Sustituir escáner (referencia)', 'BT_RPL1.', 'off']
+      ['Reescanear código de la base', '', 'normal']
     ];
     return t.map(function (r) { return newItem(r[0], r[1], r[2]); });
   }
@@ -243,7 +241,7 @@
     var it = state.items.splice(from, 1)[0];
     state.items.splice(to, 0, it);
   }
-  var KINDS = ['normal', 'alarm', 'off'];
+  var KINDS = ['normal', 'alarm'];
 
   // Reduce la imagen (máx. 1200 px de ancho) conservando nitidez (PNG)
   function fileToData(file, cb) {
@@ -290,7 +288,7 @@
         : '<div class="empty"><b>Sin imagen</b>Clic aquí y pega (Ctrl+V)<br>o arrastra un archivo</div>';
 
       var tag = document.createElement('span'); tag.className = 'tag' + (skipped ? ' skip' : '');
-      tag.textContent = skipped ? (it.kind === 'off' ? 'Fuera del flujo' : 'Alarma · se salta') : 'Paso ' + stepOf[it.id];
+      tag.textContent = skipped ? 'Alarma · se salta (Windows)' : 'Paso ' + stepOf[it.id];
       var handle = document.createElement('span'); handle.className = 'handle'; handle.textContent = '⠿'; handle.title = 'Arrastrar para ordenar';
       handle.draggable = true;
 
@@ -313,7 +311,7 @@
       var name = document.createElement('input'); name.className = 'name'; name.value = it.name; name.setAttribute('aria-label', 'Nombre');
       name.addEventListener('input', function () { it.name = name.value; save(); });
       var dot = document.createElement('button'); dot.className = 'dot ' + (it.kind === 'normal' ? '' : it.kind);
-      dot.title = 'Tipo: ' + it.kind + ' (clic para cambiar)';
+      dot.title = (it.kind === 'alarm' ? 'Alarma: se salta con "Estación con Windows"' : 'Normal') + ' (clic para cambiar)';
       dot.addEventListener('click', function () { it.kind = KINDS[(KINDS.indexOf(it.kind) + 1) % KINDS.length]; save(); render(); });
       row.appendChild(name); row.appendChild(dot);
       var cmd = document.createElement('input'); cmd.className = 'cmd'; cmd.value = it.cmd; cmd.placeholder = 'COMANDO'; cmd.setAttribute('aria-label', 'Comando');
@@ -523,8 +521,8 @@
   // ---------- Reproductor ----------
   var seq = [], pos = 0;
   function playable() {
+    // Se reproduce todo en el orden del editor; solo "Estación con Windows" quita los pasos de alarma
     return state.items.filter(function (i) {
-      if (i.kind === 'off') return false;
       if (i.kind === 'alarm' && state.windows) return false;
       return true;
     });
@@ -604,6 +602,18 @@
   $('player').addEventListener('keydown', function (e) { if (e.key === 'Enter') e.preventDefault(); }, true);
 
   load();
+  // Versiones anteriores tenían pasos "fuera del flujo" (BASLNK1, BT_RPL1). Ahora todo se reproduce,
+  // así que se ofrece quitarlos para que no se escaneen por accidente.
+  var legacy = state.items.filter(function (i) { return i.kind === 'off'; });
+  if (legacy.length) {
+    var names = legacy.map(function (i) { return '• ' + i.name + (i.cmd ? ' (' + i.cmd + ')' : ''); }).join('\n');
+    if (confirm('Ahora se reproducen todos los pasos del editor. Estos estaban marcados como "fuera del flujo":\n\n' + names + '\n\n¿Quitarlos? (Cancelar los deja como pasos normales)')) {
+      state.items = state.items.filter(function (i) { return i.kind !== 'off'; });
+    } else {
+      legacy.forEach(function (i) { i.kind = 'normal'; });
+    }
+    save();
+  }
   render();
   analyzePending();
 })();
