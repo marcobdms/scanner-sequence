@@ -472,14 +472,18 @@
   }
   function next() { if (pos < seq.length - 1) { pos++; showStep(); } else { toast('Fin de la secuencia · R para repetir'); } }
   function prev() { if (pos > 0) { pos--; showStep(); } }
-  // Factor entero en píxeles físicos: el mayor que cabe en ~85 % del ancho y en el alto disponible
+  // Granit 1911i: ángulo horizontal de 31,6°, así que a 15–20 cm ve ~8,5–11 cm de ancho.
+  // El código debe caber entero en ese campo con su margen: objetivo ~8 cm (≈300 px CSS).
+  var TARGET_CSS_W = 300;
+  // Factor entero en píxeles físicos, el más cercano al objetivo sin salirse de la pantalla
   function fit(im, st) {
     var dpr = window.devicePixelRatio || 1;
     var nw = im.naturalWidth, nh = im.naturalHeight;
     var pad = 2 * Math.min(window.innerWidth, window.innerHeight) * 0.06;
-    var maxW = (st.clientWidth * 0.85 - pad) * dpr, maxH = (st.clientHeight - pad) * dpr;
-    var auto = Math.max(1, Math.floor(Math.min(maxW / nw, maxH / nh)));
-    var f = Math.max(1, auto + state.zoom);
+    var maxW = (st.clientWidth - pad) * dpr, maxH = (st.clientHeight - pad) * dpr;
+    var cap = Math.max(1, Math.floor(Math.min(maxW / nw, maxH / nh)));
+    var auto = Math.max(1, Math.min(cap, Math.round(TARGET_CSS_W * dpr / nw)));
+    var f = Math.max(1, Math.min(cap, auto + state.zoom));
     im.style.width = (nw * f / dpr) + 'px';
     im.style.height = (nh * f / dpr) + 'px';
   }
