@@ -57,6 +57,15 @@
   .chip.is-active { border: 2px solid var(--c-ink); padding: 0 15px; background: #f7f7f7; font-weight: 600; }
   .chip.primary { background: var(--c-ink); color: #fff; border-color: var(--c-ink); }
   .spacer { flex: 1; }
+  /* Interruptor tipo iOS */
+  .switch { flex: none; display: inline-flex; align-items: center; gap: 10px; height: 38px; padding: 0 4px; font-size: 14px; font-weight: 500; white-space: nowrap; }
+  .switch .track { position: relative; width: 46px; height: 28px; border-radius: 999px; background: #e3e3e6; transition: background .2s ease; flex: none; }
+  .switch .knob { position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%; background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,.2), 0 0 1px rgba(0,0,0,.2); transition: transform .2s var(--ease, ease); }
+  .switch[aria-checked="true"] .track { background: #34c759; }
+  .switch[aria-checked="true"] .knob { transform: translateX(18px); }
+  .switch:active .knob { width: 28px; }
+  .switch[aria-checked="true"]:active .knob { transform: translateX(14px); }
 
   /* Rejilla de tarjetas */
   .grid {
@@ -135,13 +144,13 @@
   </div>
 
   <div class="toolbar">
-    <button class="chip" id="chipWin" aria-pressed="false">Estación con Windows (sin alarma)</button>
+    <button class="switch" id="chipWin" role="switch" aria-checked="false"><span class="track"><span class="knob"></span></span>Estación con Windows (sin alarma)</button>
     <span class="spacer"></span>
     <button class="chip" id="chipSwap">⇄ Intercambiar</button>
     <button class="chip" id="btnExport" title="Descarga datos.js con tus recortes: ponlo junto a index.html">⤓ Exportar</button>
     <button class="chip" id="btnImport" title="Importar copia">⤒ Importar</button>
     <button class="chip" id="btnReset" title="Restablecer plantilla (borra imágenes)">↺ Restablecer</button>
-    <button class="chip" id="chipClean" aria-pressed="false" title="Reproduce los códigos de barras redibujados nítidos. Las fotos (QR) se muestran tal cual">Códigos limpios</button>
+    <button class="switch" id="chipClean" role="switch" aria-checked="false" title="Reproduce los códigos de barras redibujados nítidos. Las fotos (QR) se muestran tal cual"><span class="track"><span class="knob"></span></span>Códigos limpios</button>
     <button class="chip primary" id="btnPlay">▶ Reproducir</button>
   </div>
 
@@ -355,10 +364,8 @@
     grid.appendChild(add);
 
     $('count').textContent = playable().length + ' pasos en reproducción · ' + state.items.length + ' códigos';
-    $('chipWin').classList.toggle('is-active', state.windows);
-    $('chipWin').setAttribute('aria-pressed', state.windows);
-    $('chipClean').classList.toggle('is-active', state.clean);
-    $('chipClean').setAttribute('aria-pressed', state.clean);
+    $('chipWin').setAttribute('aria-checked', String(!!state.windows));
+    $('chipClean').setAttribute('aria-checked', String(!!state.clean));
     $('chipSwap').classList.toggle('is-active', swapMode);
   }
   function markSelected() {
